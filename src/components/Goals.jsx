@@ -36,9 +36,68 @@ export default function Goals({ task }) {
         throw "Task favourite not add, please again login";
       }
     } catch (err) {
-      toast.success(err, { position: "top-right" });
+      toast.error(err, { position: "top-right" });
     }
   };
+
+  const handleDelete = async (data) => {
+    try {
+      const getUser = localStorage.getItem("user");
+      const accessToken = JSON.parse(getUser).accessToken;
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/delete/${data?._id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const responseParse = await response.json();
+      if (responseParse.status) {
+        const filterTask = allTasks.filter((taskData) => taskData?._id !== data?._id);
+        setAllTasks([...filterTask]);
+        toast.success("Task delete succussfully!", {
+          position: "top-right",
+        });
+      } else {
+        throw "Task not delete, please again login";
+      }
+    } catch (err) {
+      toast.error(err, { position: "top-right" });
+    }
+  };
+
+  const handleComplete = async (data) => {
+    try {
+      const getUser = localStorage.getItem("user");
+      const accessToken = JSON.parse(getUser).accessToken;
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/edit/${data._id}`, {
+        method: "PUT",
+        body: JSON.stringify({ ...data, complete: !data?.complete, inprogress: !data.inprogress }),
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+      });
+      const responseParse = await response.json();
+      if (responseParse?.status) {
+        const findIndex = allTasks.findIndex(
+          (taskData) => taskData?._id === responseParse?.data._id
+        );
+        allTasks[findIndex] = responseParse?.data;
+        setAllTasks([...allTasks]);
+        if (responseParse?.data?.complete) {
+          toast.success("Complete Task added", { position: "top-right" });
+        } else {
+          toast.success("Uncomplete Task added", { position: "top-right" });
+        }
+      } else {
+        throw "Complete Task not add, please again login";
+      }
+    } catch (err) {
+      toast.error(err, { position: "top-right" });
+    }
+  };
+
   return (
     <>
       <div className="bg-gray-800 xl:w-[700px] px-4 py-3 lg:w-[600px] md:w-[450px] w-full border-[1px] border-gray-700 rounded-md mt-6">
@@ -48,7 +107,7 @@ export default function Goals({ task }) {
             <span>
               <i className="fa-solid fa-pen-to-square"></i>
             </span>
-            <span>
+            <span onClick={() => handleDelete(task)} className="cursor-pointer">
               <i className="fa-solid fa-trash"></i>
             </span>
           </div>
@@ -64,7 +123,12 @@ export default function Goals({ task }) {
           >
             <i className="fa-regular fa-heart mx-1 "></i> Fav
           </button>
-          <button>
+          <button
+            onClick={() => handleComplete(task)}
+            className={`${
+              task?.complete ? "text-green-500 hover:text-gray-300" : "hover:text-green-500"
+            }`}
+          >
             <i className="fa-regular fa-circle-check mx-1"></i> Complete
           </button>
         </div>
