@@ -105,7 +105,7 @@ export default function Goals({ task }) {
 
   return (
     <>
-      <div className="bg-gray-800 xl:w-[700px] px-4 py-3 lg:w-[600px] md:w-[450px] w-full border-[1px] border-gray-700 rounded-md mt-6">
+      <div className="bg-gray-800 xl:w-[700px] px-4 py-3 lg:w-[600px] md:w-[450px] w-80 border-[1px] border-gray-700 rounded-md mt-6">
         <div className="flex justify-between">
           <h1 className="text-lg font-semibold text-gray-100">{task?.title}</h1>
           <div className="space-x-4">
@@ -117,7 +117,7 @@ export default function Goals({ task }) {
             </span>
           </div>
         </div>
-        <p className="mt-3 text-gray-300">{task?.description}</p>
+        <p className="mt-3 text-gray-300 break-words">{task?.description}</p>
         <p className="mt-3 text-gray-100">{moment(task?.createAt).fromNow()}</p>
         <div className="mt-3 space-x-3">
           <button
