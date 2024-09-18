@@ -2,9 +2,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { ThreeDots } from "react-loader-spinner";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterForm() {
   const [loader, setLoader] = useState(false);
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -35,6 +37,7 @@ export default function RegisterForm() {
             position: "top-right",
           });
           setLoader(false);
+          navigate("/login");
         } else {
           throw responsjosnConvert?.message;
         }
