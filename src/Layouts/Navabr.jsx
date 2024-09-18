@@ -9,7 +9,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   useEffect(() => {
     const getUser = localStorage.getItem("user");
-    const getUserParse = JSON.parse(getUser).user;
+    const getUserParse = JSON.parse(getUser)?.user;
     setUser(getUserParse);
   }, []);
 
