@@ -4,7 +4,7 @@ import { TasksContent } from "../../context";
 import { useNavigate } from "react-router-dom";
 
 export default function Inprogress() {
-  const { allTasks, setAllTasks } = useContext(TasksContent);
+  const { allTasks, setAllTasks, revealidate } = useContext(TasksContent);
   const [loading, setLoading] = useState(false);
   const [isError, setError] = useState(false);
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ export default function Inprogress() {
     }
     taskFetch();
     return () => (ignore = true);
-  }, []);
+  }, [revealidate]);
 
   let content = null;
   if (loading) {

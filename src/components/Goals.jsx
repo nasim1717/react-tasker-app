@@ -1,13 +1,17 @@
 /* eslint-disable react/prop-types */
 
-import moment from "moment-timezone";
-import { useContext } from "react";
+import moment from "moment";
+import { useContext, useState } from "react";
 import toast from "react-hot-toast";
 import { TasksContent } from "../context";
+import Modal from "../Pages/Home/Modal";
+import usePortal from "../hooks/useProtal";
 
 // eslint-disable-next-line react/prop-types
 export default function Goals({ task }) {
-  const { allTasks, setAllTasks } = useContext(TasksContent);
+  const [isOpen, setIsOpen] = useState(false);
+  const { allTasks, setAllTasks, setRevalidate, revealidate } = useContext(TasksContent);
+  const portal = usePortal();
   const handleFavourite = async (data) => {
     try {
       const getUser = localStorage.getItem("user");
@@ -85,6 +89,7 @@ export default function Goals({ task }) {
         );
         allTasks[findIndex] = responseParse?.data;
         setAllTasks([...allTasks]);
+        setRevalidate(!revealidate);
         if (responseParse?.data?.complete) {
           toast.success("Complete Task added", { position: "top-right" });
         } else {
@@ -104,16 +109,16 @@ export default function Goals({ task }) {
         <div className="flex justify-between">
           <h1 className="text-lg font-semibold text-gray-100">{task?.title}</h1>
           <div className="space-x-4">
-            <span>
+            <span onClick={() => setIsOpen(true)} className="cursor-pointer hover:text-pink-600">
               <i className="fa-solid fa-pen-to-square"></i>
             </span>
-            <span onClick={() => handleDelete(task)} className="cursor-pointer">
+            <span onClick={() => handleDelete(task)} className="cursor-pointer hover:text-pink-600">
               <i className="fa-solid fa-trash"></i>
             </span>
           </div>
         </div>
         <p className="mt-3 text-gray-300">{task?.description}</p>
-        <p className="mt-3 text-gray-100">{moment(task?.createAt).tz("Asia/Dhaka").fromNow()}</p>
+        <p className="mt-3 text-gray-100">{moment(task?.createAt).fromNow()}</p>
         <div className="mt-3 space-x-3">
           <button
             onClick={() => handleFavourite(task)}
@@ -129,10 +134,12 @@ export default function Goals({ task }) {
               task?.complete ? "text-green-500 hover:text-gray-300" : "hover:text-green-500"
             }`}
           >
-            <i className="fa-regular fa-circle-check mx-1"></i> Complete
+            <i className="fa-regular fa-circle-check mx-1"></i>{" "}
+            {task?.complete ? "Complete" : "In complete"}
           </button>
         </div>
       </div>
+      {isOpen && portal(<Modal setIsOpen={setIsOpen} task={task} />)}
     </>
   );
 }

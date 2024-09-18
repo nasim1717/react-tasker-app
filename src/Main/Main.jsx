@@ -12,10 +12,11 @@ export default function Main() {
   const location = useLocation();
   const [opoenAside, setOpenAside] = useState(false);
   const [allTasks, setAllTasks] = useState([]);
+  const [revealidate, setRevalidate] = useState(false);
   return (
     <>
       <AsideContext.Provider value={{ opoenAside, setOpenAside }}>
-        <TasksContent.Provider value={{ allTasks, setAllTasks }}>
+        <TasksContent.Provider value={{ allTasks, setAllTasks, revealidate, setRevalidate }}>
           <Navbar />
           <main className="text-white font-sans h-[calc(100%-4rem)] flex relative">
             <Asidebar />

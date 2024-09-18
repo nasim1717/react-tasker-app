@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -5,9 +6,12 @@ import { ThreeDots } from "react-loader-spinner";
 import { TasksContent } from "../../context";
 
 // eslint-disable-next-line react/prop-types
-export default function Modal({ setIsOpen }) {
+export default function Modal({ setIsOpen, task }) {
   const [loading, setLoading] = useState(false);
   const { allTasks, setAllTasks } = useContext(TasksContent);
+  const [taskData, setTaskData] = useState(
+    task?._id ? { ...task } : { title: "", description: "" }
+  );
   const {
     register,
     handleSubmit,
@@ -15,13 +19,19 @@ export default function Modal({ setIsOpen }) {
   } = useForm();
 
   const onSubmit = async (data) => {
+    console.log("taskData-->", taskData);
+    const url = task?._id
+      ? `${import.meta.env.VITE_BASE_URL}/edit/${task?._id}`
+      : `${import.meta.env.VITE_BASE_URL}/addtasks`;
     try {
       setLoading(true);
       const getUser = localStorage.getItem("user");
       const accessToken = JSON.parse(getUser).accessToken;
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/addtasks`, {
-        method: "POST",
-        body: JSON.stringify({ title: data?.title, description: data?.description }),
+      const response = await fetch(url, {
+        method: task?._id ? "PUT" : "POST",
+        body: JSON.stringify(
+          task?._id ? { title: taskData?.title, description: taskData?.description } : taskData
+        ),
         headers: {
           "Content-Type": "application/json",
           authorization: `Bearer ${accessToken}`,
@@ -32,16 +42,26 @@ export default function Modal({ setIsOpen }) {
         toast.success(responseParse.message, {
           position: "top-right",
         });
-        setAllTasks([...allTasks, responseParse?.data]);
+        if (task?._id) {
+          const findIndex = allTasks.findIndex((findTask) => findTask?._id === task?._id);
+          allTasks[findIndex] = responseParse?.data;
+          setAllTasks([...allTasks]);
+        } else {
+          setAllTasks([...allTasks, responseParse?.data]);
+        }
+
         setIsOpen(false);
         setLoading(false);
       } else {
         throw responseParse.message;
       }
     } catch {
-      toast.error("Task not added, please again login", {
-        position: "top-right",
-      });
+      toast.error(
+        task?._id ? "Task not updated, please again login" : "Task not added, please again login",
+        {
+          position: "top-right",
+        }
+      );
       setLoading(false);
     }
   };
@@ -57,6 +77,10 @@ export default function Modal({ setIsOpen }) {
             </label>
             <input
               {...register("title", { required: "Title field is required" })}
+              onChange={(e) => {
+                setTaskData({ ...taskData, title: e.target.value });
+              }}
+              value={taskData?.title}
               name="title"
               id="title"
               type="text"
@@ -71,6 +95,10 @@ export default function Modal({ setIsOpen }) {
             </label>
             <textarea
               {...register("description", { required: "Description field is required" })}
+              onChange={(e) => {
+                setTaskData({ ...taskData, description: e.target.value });
+              }}
+              value={taskData?.description}
               id="description"
               name="description"
               className="w-full p-2 rounded-md bg-gray-700 text-white"
@@ -90,10 +118,11 @@ export default function Modal({ setIsOpen }) {
               Cancel
             </button>
             <button
+              disabled={loading}
               type="submit"
               className="flex justify-center items-center py-2 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-md"
             >
-              <p> Add Goal</p>
+              <p> {task?._id ? "Update Task" : "Add Task"}</p>
               {loading && (
                 <ThreeDots color="white" width={40} height={15} radius={15} visible={true} />
               )}

@@ -17,7 +17,7 @@ export default function Asidebar() {
           <ul className="space-y-3">
             <li className="flex gap-4 items-center py-6 text-3xl italic ml-1">
               <img src={Logo} alt="goal" width="60px" />
-              <span>Goals</span>
+              <span>Tasks</span>
             </li>
             <li className="py-5 text-[27px] hover:text-pink-600 hover:bg-gray-700/50 rounded-md cursor-pointer">
               <Link to="/">
